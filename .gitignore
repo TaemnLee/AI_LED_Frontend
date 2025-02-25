@@ -1,5 +1,5 @@
 # Local .terraform directories (provider binaries, external modules)
-**/.terraform/*
+terraform/.terraform
 
 # Terraform state files (contain sensitive resource attributes)
 *.tfstate
