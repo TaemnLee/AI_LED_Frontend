@@ -7,3 +7,8 @@ variable "common_tags" {
   description = "The common tags to apply to all resources"
   type        = map(string)
 }
+
+variable "region" {
+  type = string
+  default = "us-east-1"
+}
