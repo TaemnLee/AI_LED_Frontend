@@ -8,13 +8,13 @@ resource "aws_s3_bucket" "terraform_state" {
 }
 
 # S3 for static website hosting
-resource "aws_s3_bucket" "terraform_static_website" {
+resource "aws_s3_bucket" "prism-led-proto" {
     bucket = var.bucket_name
     tags = var.common_tags
 }
 
-resource "aws_s3_bucket_website_configuration" "terraform_static_website" {
-    bucket = aws_s3_bucket.terraform_static_website.id
+resource "aws_s3_bucket_website_configuration" "prism-led-proto" {
+    bucket = aws_s3_bucket.prism-led-proto.id
     index_document {
         suffix = "index.html"
     }
@@ -24,13 +24,13 @@ resource "aws_s3_bucket_website_configuration" "terraform_static_website" {
 }
 
 resource "aws_s3_bucket_public_access_block" "bucket_access_block"{
-    bucket = aws_s3_bucket.terraform_static_website.id
+    bucket = aws_s3_bucket.prism-led-proto.id
     block_public_acls = false
     block_public_policy = false
 }
 
-resource "aws_s3_bucket_policy" "terraform_static_website" {
-    bucket = aws_s3_bucket.terraform_static_website.id
+resource "aws_s3_bucket_policy" "prism-led-proto" {
+    bucket = aws_s3_bucket.prism-led-proto.id
     policy = jsonencode({
         Version = "2012-10-17",
         Statement = [
@@ -39,7 +39,7 @@ resource "aws_s3_bucket_policy" "terraform_static_website" {
                 Effect = "Allow",
                 Principal = "*",
                 Action = "s3:GetObject",
-                Resource = "${aws_s3_bucket.terraform_static_website.arn}/*"
+                Resource = "${aws_s3_bucket.prism-led-proto.arn}/*"
             }
         ]
     })
