@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import Image from "next/image";
 
 export default function RecordingPage() {
   const router = useRouter();
@@ -11,23 +12,67 @@ export default function RecordingPage() {
   const [loading, setLoading] = useState(false);
   const [surpriseLoading, setSurpriseLoading] = useState(false);
   const [apiResponse, setApiResponse] = useState(null);
+  const [isConnected, setIsConnected] = useState(null);
   const [systemMessage, setSystemMessage] = useState("Ready to record! 🎙️");
   const [mediaRecorder, setMediaRecorder] = useState(null);
 
-  // Retrieve UUID and PIN from query parameters
+  // Retrieve UUID & PIN from localStorage
   useEffect(() => {
-    if (router.query.uuid && router.query.pin) {
-      setUuid(router.query.uuid);
-      setPin(router.query.pin);
+    const storedUuid = localStorage.getItem("uuid");
+    const storedPin = localStorage.getItem("pin");
+
+    if (storedUuid && storedPin) {
+      setUuid(storedUuid);
+      setPin(storedPin);
+    } else {
+      router.push("/uuid");
     }
-  }, [router.isReady, router.query]);
+  }, [router]);
+
+  // Automatically check WebSocket connection on page load
+  useEffect(() => {
+    if (!uuid) return;
+
+    const checkWebSocketConnection = async () => {
+      try {
+        const response = await fetch(
+          "https://flzer6zwt3.execute-api.us-east-1.amazonaws.com/dev/is_connect",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ uuid }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setIsConnected(data.connected);
+          setSystemMessage(data.connected ? "✅ Connected to Arduino!" : "❌ Not Connected!");
+        } else {
+          setIsConnected(false);
+        }
+      } catch (err) {
+        setIsConnected(false);
+      }
+    };
+
+    checkWebSocketConnection();
+  }, [uuid]);
+
+  // Logout function (Clears UUID & PIN)
+  const handleLogout = () => {
+    localStorage.removeItem("uuid");
+    localStorage.removeItem("pin");
+    router.push("/");
+  };
 
   // Function to handle recording
   const toggleRecording = async () => {
     if (recording) {
       if (mediaRecorder) {
         mediaRecorder.stop();
-        mediaRecorder.stream.getTracks().forEach((track) => track.stop()); // Stop microphone
+        mediaRecorder.stream.getTracks().forEach((track) => track.stop());
       }
       setRecording(false);
       setSystemMessage("Recording stopped. 🎤 Ready to send?");
@@ -69,7 +114,7 @@ export default function RecordingPage() {
     });
   };
 
-  // Function to send audio to audio_to_ai API
+  // Function to send audio
   const sendAudio = async () => {
     if (!uuid || !pin) {
       setError("❌ UUID and PIN are required.");
@@ -88,11 +133,14 @@ export default function RecordingPage() {
 
     try {
       const base64Audio = await convertBlobToBase64(audioBlob);
-      const response = await fetch("https://flzer6zwt3.execute-api.us-east-1.amazonaws.com/dev/audio_to_ai/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uuid, pin, file: base64Audio }),
-      });
+      const response = await fetch(
+        "https://flzer6zwt3.execute-api.us-east-1.amazonaws.com/dev/audio_to_ai/create",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uuid, pin, file: base64Audio }),
+        }
+      );
 
       const data = await response.json();
 
@@ -101,17 +149,15 @@ export default function RecordingPage() {
         setSystemMessage("✅ Audio sent successfully! AI is processing...");
       } else {
         setError(`❌ Error: ${data.message || "Invalid UUID or PIN."}`);
-        setSystemMessage("❌ Audio failed to send.");
       }
     } catch (err) {
       setError("❌ Server error. Please try again.");
-      setSystemMessage("❌ Server error. Unable to process.");
     }
 
     setLoading(false);
   };
 
-  // Function to trigger "Surprise Me" (pattern_to_ai API)
+  // Function to trigger "Surprise Me"
   const surpriseMe = async () => {
     if (!uuid || !pin) {
       setError("❌ UUID and PIN are required.");
@@ -124,11 +170,14 @@ export default function RecordingPage() {
     setSystemMessage("🔮 Generating surprise effect...");
 
     try {
-      const response = await fetch("https://flzer6zwt3.execute-api.us-east-1.amazonaws.com/dev/pattern_to_ai/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uuid, pin }),
-      });
+      const response = await fetch(
+        "https://flzer6zwt3.execute-api.us-east-1.amazonaws.com/dev/pattern_to_ai/create",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uuid, pin }),
+        }
+      );
 
       const data = await response.json();
 
@@ -137,38 +186,54 @@ export default function RecordingPage() {
         setSystemMessage("🎉 Surprise effect applied!");
       } else {
         setError(`❌ Error: ${data.message || "Invalid UUID or PIN."}`);
-        setSystemMessage("❌ Surprise effect failed.");
       }
     } catch (err) {
       setError("❌ Server error. Please try again.");
-      setSystemMessage("❌ Server error. Unable to generate surprise.");
     }
 
     setSurpriseLoading(false);
   };
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-gray-800 text-white">
-      <h1 className="text-2xl">Recording Page</h1>
+    <div className="h-screen flex flex-col items-center justify-center bg-[#FFFEFA] text-[#28251B] relative">
+      
+      {/* Top-left Logo */}
+      <div className="absolute top-6 left-6 flex items-center gap-2">
+        <Image src="/logomark.svg" alt="Prism Logo" width={40} height={40} />
+        <span className="text-[#A4800A] text-[1.8rem] font-bold leading-[40px]">
+          Prism
+        </span>
+      </div>
 
-      {/* System Feedback Box */}
-      <div className="mt-4 p-4 bg-gray-700 text-white rounded-lg shadow-md w-80 text-center">
+      {/* Log Out Button (SVG) - Top-right corner */}
+      <button onClick={handleLogout} className="absolute top-4 right-4">
+        <Image src="/logout.svg" alt="Logout" width={32} height={32} />
+      </button>
+
+      {/* Connection Status */}
+      <div className="flex items-center gap-2 mt-6">
+        <span className={`w-4 h-4 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"}`}></span>
+        <p>{isConnected ? "Connected" : "Disconnected"}</p>
+      </div>
+
+      {/* System Message Box */}
+      <div className="mt-4 p-4 bg-[#2D2D2D] text-[#F3F4F6] rounded-lg shadow-lg w-80 text-center">
         <p className="text-sm">{systemMessage}</p>
       </div>
 
-      {/* Recording Button */}
+      {/* Record Button */}
       <button
-        className={`mt-5 px-4 py-2 rounded-lg shadow-md ${
-          recording ? "bg-red-500" : "bg-green-500"
-        } text-white`}
         onClick={toggleRecording}
+        className={`mt-8 w-20 h-20 flex items-center justify-center rounded-full shadow-xl transition ${
+            recording ? "bg-[#D7263D] hover:bg-[#B71C1C]" : "bg-[#F4A261] hover:bg-[#E76F51]"
+        }`}
       >
-        {recording ? "⏹ Stop Recording" : "🎙 Start Recording"}
+        🎤
       </button>
 
       {/* Send Audio Button */}
       <button
-        className="mt-5 px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md disabled:opacity-50"
+        className="mt-4 px-6 py-2 bg-[#4B5563] text-white font-semibold rounded-lg shadow-md hover:bg-[#374151] transition"
         onClick={sendAudio}
         disabled={loading}
       >
@@ -177,24 +242,12 @@ export default function RecordingPage() {
 
       {/* Surprise Me Button */}
       <button
-        className="mt-5 px-4 py-2 bg-purple-500 text-white rounded-lg shadow-md disabled:opacity-50"
+        className="mt-3 px-6 py-2 bg-gradient-to-r from-red-500 to-blue-500 text-white font-semibold rounded-lg shadow-md hover:opacity-90 transition"
         onClick={surpriseMe}
         disabled={surpriseLoading}
       >
         {surpriseLoading ? "Generating..." : "🎲 Surprise Me"}
       </button>
-
-      {/* Error Message Display */}
-      {error && <p className="text-red-500 mt-2">{error}</p>}
-
-      {/* AI Response Display */}
-      {apiResponse && (
-        <div className="mt-5 p-4 bg-gray-700 text-white rounded-lg shadow-md w-80">
-          <h3 className="text-lg font-bold">✨ AI Response</h3>
-          <p className="mt-2">{apiResponse.recommendation}</p>
-          <p className="text-sm text-gray-300">{apiResponse.context}</p>
-        </div>
-      )}
     </div>
   );
 }
