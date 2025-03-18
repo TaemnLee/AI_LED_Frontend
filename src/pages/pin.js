@@ -20,7 +20,7 @@ export default function PINPage() {
         inputRefs[0].current.focus();
       }, 500);
     }
-  }, []);
+  }, [inputRefs]); // Add inputRefs to the dependency array
 
   const handleChange = (index, value) => {
     if (!/^\d?$/.test(value)) return; // Allow only numbers
@@ -93,7 +93,7 @@ export default function PINPage() {
         >
           <div className="text-center space-y-2">
             <h2 className="text-2xl font-semibold gradient-text">Enter PIN</h2>
-            <p className="text-muted">Enter the 4-digit PIN sent to your device.</p>
+            <p className="text-muted">Enter the predefined 4-digit PIN of your device.</p>
           </div>
 
           {/* 4-Digit PIN Inputs */}
@@ -122,13 +122,13 @@ export default function PINPage() {
           {/* Error Message */}
           {error && <p className="text-center text-error text-sm -mt-4">{error}</p>}
 
-          {/* Verify Button */}
+          {/* Continue Button */}
           <Link href={`/recording?uuid=${uuid}&pin=${pin.join("")}`} onClick={handleSubmit}>
             <button
               className={`btn btn-primary w-full ${pin.join("").length !== 4 ? "btn-disabled" : ""}`}
               disabled={pin.join("").length !== 4}
             >
-              Verify
+              Continue
             </button>
           </Link>
         </div>

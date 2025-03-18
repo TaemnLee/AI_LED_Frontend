@@ -51,34 +51,39 @@ export default function UUIDPage() {
             <p className="text-muted">Enter your unique device identifier to continue.</p>
           </div>
 
-          {/* UUID Input Field */}
-          <div className="gradient-border w-full">
-            <input
-              type="text"
-              value={uuid}
-              onChange={(e) => setUuid(e.target.value)}
-              className="input-field w-full"
-              placeholder="Enter your User ID"
-              aria-label="User ID"
-              style={{ borderRadius: "calc(var(--radius) - 1px)" }}
-            />
-          </div>
+          {/* Input and Button Container - Redesigned */}
+          <div className="w-full space-y-4">
+            {/* UUID Input Field - Fixed styling */}
+            <div className="w-full">
+              <input
+                type="text"
+                value={uuid}
+                onChange={(e) => setUuid(e.target.value)}
+                className="input-field w-full bg-background-alt border border-border focus:border-primary-glow focus:ring-2 focus:ring-primary-glow/25 rounded-lg"
+                placeholder="Enter your User ID"
+                aria-label="User ID"
+              />
+            </div>
 
-          {/* Continue Button */}
-          <Link
-            href={`/pin?uuid=${uuid}`}
-            onClick={(e) => {
-              if (!uuid) {
-                e.preventDefault();
-                return;
-              }
-              localStorage.setItem("uuid", uuid);
-            }}
-          >
-            <button className={`btn btn-primary w-full ${!uuid ? "btn-disabled" : ""}`} disabled={!uuid}>
-              Continue
-            </button>
-          </Link>
+            {/* Continue Button - Now separated from the input */}
+            <div className="w-full">
+              <Link
+                href={`/pin?uuid=${uuid}`}
+                onClick={(e) => {
+                  if (!uuid) {
+                    e.preventDefault();
+                    return;
+                  }
+                  localStorage.setItem("uuid", uuid);
+                }}
+                className="block w-full"
+              >
+                <button className={`btn btn-primary w-full ${!uuid ? "btn-disabled" : ""}`} disabled={!uuid}>
+                  Continue
+                </button>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>
