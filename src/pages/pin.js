@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Image from "next/image";
@@ -8,7 +8,19 @@ export default function PINPage() {
   const { uuid } = router.query;
   const [pin, setPin] = useState(["", "", "", ""]);
   const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
   const inputRefs = [useRef(), useRef(), useRef(), useRef()];
+
+  useEffect(() => {
+    setMounted(true);
+
+    // Focus first input when component mounts
+    if (inputRefs[0].current) {
+      setTimeout(() => {
+        inputRefs[0].current.focus();
+      }, 500);
+    }
+  }, []);
 
   const handleChange = (index, value) => {
     if (!/^\d?$/.test(value)) return; // Allow only numbers
@@ -31,70 +43,96 @@ export default function PINPage() {
   const handleSubmit = (e) => {
     const pinValue = pin.join(""); // Convert array to string
     if (pinValue.length !== 4) {
-      setError("❌ PIN must be exactly 4 digits.");
+      setError("PIN must be exactly 4 digits");
       e.preventDefault(); // Prevent navigation if invalid
     } else {
       setError("");
-      
-      // ✅ Save to localStorage
+
+      // Save to localStorage
       localStorage.setItem("uuid", uuid);
       localStorage.setItem("pin", pinValue);
-      
-      // ✅ Navigate to recording page
+
+      // Navigate to recording page
       router.push(`/recording?uuid=${uuid}&pin=${pinValue}`);
     }
   };
-  
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-[#FFFEFA] text-[#28251B]">
-      {/* Top-left Logo */}
-      <div className="absolute top-6 left-6 flex items-center gap-2">
-        <Image src="/logomark.svg" alt="Prism Logo" width={40} height={40} />
-        <span className="text-[#A4800A] text-[1.8rem] font-bold leading-[40px]">
-          Prism
-        </span>
-      </div>
-      {/* Logo & Title */}
-      <div className="flex flex-col items-center gap-2 mb-8">
-        <Image src="/prisimLogo.png" alt="Prism Logo" width={284} height={176} priority />
-        <h1 className="text-4xl font-bold mt-2">Prism</h1>
-      </div>
+    <div className="page-container">
+      <div className="light-grid"></div>
 
-      {/* Heading */}
-      <h2 className="text-2xl font-semibold">Enter PIN</h2>
-      <p className="text-md text-gray-600 mt-1">
-        Enter the 4-digit PIN sent to your registered device.
-      </p>
+      {/* Header Logo */}
+      <div className="header w-full flex items-center justify-between">
+        <div className="logo-container">
+          <div className="logo-glow">
+            <Image src="/logomark.svg" alt="Prism Logo" width={40} height={40} />
+          </div>
+          <span className="brand-name">Prism</span>
+        </div>
 
-      {/* 4-Digit PIN Inputs */}
-      <div className="flex gap-4 mt-4">
-        {pin.map((digit, index) => (
-          <input
-            key={index}
-            type="text"
-            maxLength="1"
-            value={digit}
-            ref={inputRefs[index]}
-            onChange={(e) => handleChange(index, e.target.value)}
-            onKeyDown={(e) => handleKeyDown(index, e)}
-            className="w-12 h-12 text-center text-2xl font-semibold border border-gray-300 rounded-lg text-black focus:ring-2 focus:ring-yellow-400 outline-none"
-          />
-        ))}
+        <Link href="/uuid" className="text-sm text-muted hover:text-white transition-colors">
+          Back
+        </Link>
       </div>
 
-      {/* Error Message */}
-      {error && <p className="text-red-500 mt-2">{error}</p>}
-
-      {/* Verify Button */}
-      <Link href={`/recording?uuid=${uuid}&pin=${pin.join("")}`} onClick={handleSubmit} className="w-full flex justify-center">
-        <button
-          className="mt-5 w-80 px-6 py-3 bg-[#FFCD29] text-black text-lg font-semibold rounded-lg shadow-md hover:bg-yellow-400 transition disabled:opacity-50"
-          disabled={pin.join("").length !== 4}
+      {/* Main Content */}
+      <div className="flex flex-col items-center max-w-md w-full px-6 mt-16">
+        {/* Logo */}
+        <div
+          className={`floating-element flex flex-col items-center gap-3 mb-10 transition-all duration-700 ${
+            mounted ? "opacity-100" : "opacity-0"
+          }`}
         >
-          Verify
-        </button>
-      </Link>
+          <Image src="/prisimLogo.png" alt="Prism Logo" width={180} height={112} priority className="drop-shadow-2xl" />
+          <div className="led-strip-visual w-48"></div>
+        </div>
+
+        {/* PIN Form */}
+        <div
+          className={`w-full space-y-8 transition-all duration-700 delay-100 ${mounted ? "opacity-100" : "opacity-0"}`}
+        >
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl font-semibold gradient-text">Enter PIN</h2>
+            <p className="text-muted">Enter the 4-digit PIN sent to your device.</p>
+          </div>
+
+          {/* 4-Digit PIN Inputs */}
+          <div className="flex justify-center gap-4 my-8">
+            {pin.map((digit, index) => (
+              <div key={index} className="gradient-border">
+                <input
+                  type="text"
+                  maxLength="1"
+                  value={digit}
+                  ref={inputRefs[index]}
+                  onChange={(e) => handleChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(index, e)}
+                  className="pin-input"
+                  aria-label={`PIN digit ${index + 1}`}
+                  style={{
+                    borderRadius: "calc(var(--radius) - 1px)",
+                    width: "3.8rem",
+                    height: "4.2rem",
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Error Message */}
+          {error && <p className="text-center text-error text-sm -mt-4">{error}</p>}
+
+          {/* Verify Button */}
+          <Link href={`/recording?uuid=${uuid}&pin=${pin.join("")}`} onClick={handleSubmit}>
+            <button
+              className={`btn btn-primary w-full ${pin.join("").length !== 4 ? "btn-disabled" : ""}`}
+              disabled={pin.join("").length !== 4}
+            >
+              Verify
+            </button>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
