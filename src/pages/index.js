@@ -1,13 +1,24 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+
+    // Check if UUID and PIN exist in localStorage
+    const uuid = localStorage.getItem("uuid");
+    const pin = localStorage.getItem("pin");
+
+    if (uuid && pin) {
+      // Redirect to recording page if both UUID and PIN exist
+      router.push("/recording");
+    }
+  }, [router]);
 
   return (
     <div className="page-container">

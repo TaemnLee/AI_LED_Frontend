@@ -14,12 +14,23 @@ export default function PINPage() {
   useEffect(() => {
     setMounted(true);
 
+    // Check if UUID and PIN exist in localStorage
+    const storedUuid = localStorage.getItem("uuid");
+    const storedPin = localStorage.getItem("pin");
+    
+    if (storedUuid && storedPin) {
+      // Redirect to recording page if both UUID and PIN exist
+      router.push("/recording");
+    } else if (!storedUuid) {
+      // Redirect to home page if UUID doesn't exist
+      router.push("/");
+    }
+
     // Focus first input when component mounts
     if (inputRefs[0].current) {
       inputRefs[0].current.focus();
     }
-    // Run this effect only once when the component mounts
-  }, []); // Removed `inputRefs` from the dependency array
+  }, [router]);
 
   const handleChange = (index, value) => {
     if (!/^\d?$/.test(value)) return; // Allow only numbers
@@ -46,19 +57,16 @@ export default function PINPage() {
   };
 
   const handleSubmit = (e) => {
+    e.preventDefault(); // Prevent default form submission
     const pinValue = pin.join(""); // Convert array to string
     if (pinValue.length !== 4) {
       setError("PIN must be exactly 4 digits");
-      e.preventDefault(); // Prevent navigation if invalid
     } else {
       setError("");
-
       // Save to localStorage
-      localStorage.setItem("uuid", uuid);
       localStorage.setItem("pin", pinValue);
-
       // Navigate to recording page
-      router.push(`/recording?uuid=${uuid}&pin=${pinValue}`);
+      router.push("/recording");
     }
   };
 
@@ -128,14 +136,13 @@ export default function PINPage() {
           {error && <p className="text-center text-error text-sm -mt-4">{error}</p>}
 
           {/* Continue Button */}
-          <Link href={`/recording?uuid=${uuid}&pin=${pin.join("")}`} onClick={handleSubmit}>
-            <button
-              className={`btn btn-primary w-full ${pin.join("").length !== 4 ? "btn-disabled" : ""}`}
-              disabled={pin.join("").length !== 4}
-            >
-              Continue
-            </button>
-          </Link>
+          <button
+            onClick={handleSubmit}
+            className={`btn btn-primary w-full ${pin.join("").length !== 4 ? "btn-disabled" : ""}`}
+            disabled={pin.join("").length !== 4}
+          >
+            Continue
+          </button>
         </div>
       </div>
     </div>

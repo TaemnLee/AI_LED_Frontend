@@ -5,7 +5,15 @@ locals {
 
 resource "aws_cloudfront_distribution" "this" {
   
-  enabled = true
+  enabled             = true
+  default_root_object = "index.html"  # 루트 URL 접근 시 index.html 제공
+  
+  # 404 등 오류 시 SPA 라우팅을 위한 설정
+  custom_error_response {
+    error_code         = 404
+    response_code      = 200
+    response_page_path = "/index.html"
+  }
   
   origin {
     origin_id                = local.s3_origin_id
@@ -14,12 +22,11 @@ resource "aws_cloudfront_distribution" "this" {
       http_port              = 80
       https_port             = 443
       origin_protocol_policy = "http-only"
-      origin_ssl_protocols   = ["TLSv1"]
+      origin_ssl_protocols   = ["TLSv1.2"]
     }
   }
 
   default_cache_behavior {
-    
     target_origin_id = local.s3_origin_id
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
@@ -49,5 +56,4 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   price_class = "PriceClass_200"
-  
 }

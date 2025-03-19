@@ -1,6 +1,6 @@
 variable "bucket_name" {
-  description = "The name of the S3 bucket"
   type        = string
+  description = "S3 bucket name"
 }
 
 variable "common_tags" {
@@ -9,6 +9,7 @@ variable "common_tags" {
 }
 
 variable "region" {
-  type = string
-  default = "us-east-1"
+  type        = string
+  description = "AWS region"
+  default     = "us-east-1"
 }

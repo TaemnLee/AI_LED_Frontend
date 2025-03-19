@@ -10,7 +10,16 @@ export default function UUIDPage() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    
+    // Check if UUID and PIN exist in localStorage
+    const storedUuid = localStorage.getItem("uuid");
+    const storedPin = localStorage.getItem("pin");
+    
+    if (storedUuid && storedPin) {
+      // Redirect to recording page if both UUID and PIN exist
+      router.push("/recording");
+    }
+  }, [router]);
 
   return (
     <div className="page-container">
@@ -67,21 +76,17 @@ export default function UUIDPage() {
 
             {/* Continue Button - Now separated from the input */}
             <div className="w-full">
-              <Link
-                href={`/pin?uuid=${uuid}`}
-                onClick={(e) => {
-                  if (!uuid) {
-                    e.preventDefault();
-                    return;
-                  }
+              <button 
+                onClick={() => {
+                  if (!uuid) return;
                   localStorage.setItem("uuid", uuid);
+                  router.push("/pin");
                 }}
-                className="block w-full"
+                className={`btn btn-primary w-full ${!uuid ? "btn-disabled" : ""}`} 
+                disabled={!uuid}
               >
-                <button className={`btn btn-primary w-full ${!uuid ? "btn-disabled" : ""}`} disabled={!uuid}>
-                  Continue
-                </button>
-              </Link>
+                Continue
+              </button>
             </div>
           </div>
         </div>

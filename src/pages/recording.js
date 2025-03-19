@@ -33,7 +33,8 @@ export default function RecordingPage() {
       setUuid(storedUuid);
       setPin(storedPin);
     } else {
-      router.push("/uuid");
+      // Redirect to home page if either UUID or PIN is missing
+      router.push("/");
     }
 
     return () => {
@@ -96,7 +97,7 @@ export default function RecordingPage() {
     checkWebSocketConnection();
   }, [uuid]);
 
-  // Logout function (Clears UUID & PIN)
+  // Logout function (Clears UUID & PIN and redirects to home)
   const handleLogout = () => {
     localStorage.removeItem("uuid");
     localStorage.removeItem("pin");
