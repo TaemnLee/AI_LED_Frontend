@@ -5,12 +5,24 @@ This repository contains the frontend application for an AI-powered LED control 
 ## Project Repositories
 
 - **Frontend**: [AI_LED_Frontend](https://github.com/TaemnLee/AI_LED_Frontend) (this repository)
-- **Backend**: [AI_LED_Backend](https://github.com/sunhokim/AI_LED_Backend)
+- **Backend**: [AI_LED_Backend](https://github.com/sunhome243/AI_LED_Backend)
 - **Project Canvas**: [Lean Canvas](https://sunhome243.github.io/leancanvas/) - Learn more about the project vision, target customers, and business model
 
 ## Application Overview
 
-![Application Overview](https://placeholder-for-app-screenshot.png) <!-- IMAGE SUGGESTION: Add a screenshot of the home page or main interface here -->
+This application allows users to interact with their LED devices using a unique UUID and PIN. Below are some screenshots showcasing the application's features:
+
+### 1. Home Page
+![Home Page](./public/HomeImage.png)
+
+### 2. UUID Input Page
+![UUID Input Page](./public/UUIDImage.png)
+
+### 3. PIN Input Page
+![PIN Input Page](./public/PINImage.png)
+
+### 4. Recording Page
+![Recording Page](./public/RecordingImage.png)
 
 The AI LED Frontend provides a modern, intuitive interface for users to:
 
@@ -26,8 +38,6 @@ The AI LED Frontend provides a modern, intuitive interface for users to:
 
 Users can record voice commands that are sent to the backend, where Google Gemini AI analyzes the emotional content and context to generate appropriate lighting recommendations.
 
-![Voice Recording Interface](https://placeholder-for-recording-interface.png) <!-- IMAGE SUGGESTION: Add a screenshot of the recording interface with the microphone button -->
-
 ### Surprise Me Function
 
 The "Surprise Me" feature generates lighting effects without requiring voice input, based on user history and AI-generated patterns.
@@ -36,13 +46,9 @@ The "Surprise Me" feature generates lighting effects without requiring voice inp
 
 The application monitors WebSocket connections to LED devices in real-time, providing visual feedback about connection status.
 
-![Connection Status](https://placeholder-for-connection-status.png) <!-- IMAGE SUGGESTION: Add a screenshot showing the connection status indicator -->
-
 ### AI Recommendations Display
 
 Lighting recommendations from the AI are displayed in a user-friendly format, explaining the emotional context and lighting choice.
-
-![AI Recommendation Card](https://placeholder-for-recommendation-card.png) <!-- IMAGE SUGGESTION: Add a screenshot of the recommendation card that appears after processing -->
 
 ## Technology Stack
 
@@ -58,35 +64,19 @@ Lighting recommendations from the AI are displayed in a user-friendly format, ex
 3. **PIN Page**: Enter 4-digit PIN for authentication
 4. **Control Panel**: Main interface for recording voice commands and receiving AI recommendations
 
-![User Flow Diagram](https://placeholder-for-user-flow-diagram.png) <!-- IMAGE SUGGESTION: Add a diagram showing the flow between pages -->
+### User Flow Diagram
 
-## UI/UX Design Elements
-
-The application features a modern, dark-themed UI with:
-
-- **Gradient accents**: Purple and indigo gradients throughout the interface
-- **Glassmorphism**: Blurred, translucent backgrounds for cards and panels
-- **Animations**: Subtle animations for transitions and interactive elements
-- **Responsive design**: Optimized for both desktop and mobile devices
-
-![Design System](https://placeholder-for-design-system.png) <!-- IMAGE SUGGESTION: Add a visual showing the design system elements (colors, buttons, cards, etc.) -->
-
-## Component Structure
-
-The application is organized into the following pages:
-
-- **index.js**: Home/landing page with feature overview
-- **uuid.js**: UUID entry page for device identification
-- **pin.js**: PIN entry page for authentication
-- **recording.js**: Main control panel for voice commands and visualization
-
-### Key Components
-
-- **Record Button**: For capturing voice commands
-- **Audio Visualizer**: Visual feedback during recording
-- **Connection Indicator**: Shows real-time device connection status
-- **System Message**: Provides feedback on application state
-- **AI Recommendation Card**: Displays AI responses and lighting suggestions
+```mermaid
+flowchart TD
+    A[Home Page] --> B[UUID Input Page]
+    B --> C[PIN Input Page]
+    C --> D[Control Panel]
+    D -->|Record Audio| E[Send Audio to Backend]
+    D -->|Surprise Me| F[Generate Lighting Effect]
+    E --> G[Receive AI Recommendation]
+    F --> G
+    G --> D
+```
 
 ## API Integration
 
@@ -105,7 +95,44 @@ The frontend communicates with the backend through several endpoints:
 3. **API Submission**: Audio sent to backend for processing
 4. **Response Handling**: AI recommendations displayed to user
 
-![Data Flow Diagram](https://placeholder-for-data-flow.png) <!-- IMAGE SUGGESTION: Add a diagram showing the data flow between frontend and backend -->
+### Data Flow Diagram
+
+```mermaid
+flowchart TD
+    A[Frontend: User Interaction] -->|Record Audio| B[Web Audio API]
+    B -->|Convert to Base64| C[Frontend: Prepare Data]
+    C -->|Send via REST API| D[Backend: Audio Processing]
+    D -->|Process with AI| E[Google Gemini AI]
+    E -->|Generate Recommendation| F[Backend: Response]
+    F -->|Send Response| G[Frontend: Display Recommendation]
+    G -->|Update UI| A
+```
+
+## UI/UX Design Elements
+
+The application features a modern, dark-themed UI with:
+
+- **Gradient accents**: Purple and indigo gradients throughout the interface
+- **Glassmorphism**: Blurred, translucent backgrounds for cards and panels
+- **Animations**: Subtle animations for transitions and interactive elements
+- **Responsive design**: Optimized for both desktop and mobile devices
+
+## Component Structure
+
+The application is organized into the following pages:
+
+- **index.js**: Home/landing page with feature overview
+- **uuid.js**: UUID entry page for device identification
+- **pin.js**: PIN entry page for authentication
+- **recording.js**: Main control panel for voice commands and visualization
+
+### Key Components
+
+- **Record Button**: For capturing voice commands
+- **Audio Visualizer**: Visual feedback during recording
+- **Connection Indicator**: Shows real-time device connection status
+- **System Message**: Provides feedback on application state
+- **AI Recommendation Card**: Displays AI responses and lighting suggestions
 
 ## Prerequisites
 
@@ -164,8 +191,6 @@ The application is fully responsive and optimized for:
 - Tablets
 - Mobile phones
 
-![Responsive Design](https://placeholder-for-responsive-design.png) <!-- IMAGE SUGGESTION: Add screenshots showing the app on different device sizes -->
-
 ## Accessibility Features
 
 - Semantic HTML structure
@@ -208,11 +233,9 @@ The application is fully responsive and optimized for:
 4. **Advanced Scheduling**: Set schedules for automatic lighting changes
 5. **Multi-device Support**: Control multiple LED devices from a single interface
 
-![Future Features Mockup](https://placeholder-for-future-features.png) <!-- IMAGE SUGGESTION: Add mockups of planned future features -->
-
 ## Contact
 
 For more information or assistance, please contact:
 
-- Email: 
+- Email: [lee_t1@denison.edu](mailto:lee_t1@denison.edu)
 - Project Canvas: [https://sunhome243.github.io/leancanvas/](https://sunhome243.github.io/leancanvas/)

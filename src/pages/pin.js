@@ -16,11 +16,10 @@ export default function PINPage() {
 
     // Focus first input when component mounts
     if (inputRefs[0].current) {
-      setTimeout(() => {
-        inputRefs[0].current.focus();
-      }, 500);
+      inputRefs[0].current.focus();
     }
-  }, [inputRefs]); // Add inputRefs to the dependency array
+    // Run this effect only once when the component mounts
+  }, []); // Removed `inputRefs` from the dependency array
 
   const handleChange = (index, value) => {
     if (!/^\d?$/.test(value)) return; // Allow only numbers
@@ -28,15 +27,21 @@ export default function PINPage() {
     newPin[index] = value;
     setPin(newPin);
 
-    // Move to next input field
+    // Move to the next input field only if the current one is filled
     if (value && index < 3) {
       inputRefs[index + 1].current.focus();
     }
   };
 
   const handleKeyDown = (index, e) => {
-    if (e.key === "Backspace" && !pin[index] && index > 0) {
-      inputRefs[index - 1].current.focus();
+    if (e.key === "Backspace") {
+      if (pin[index]) {
+        const newPin = [...pin];
+        newPin[index] = ""; // Clear the current input
+        setPin(newPin);
+      } else if (index > 0) {
+        inputRefs[index - 1].current.focus(); // Move to the previous input
+      }
     }
   };
 
