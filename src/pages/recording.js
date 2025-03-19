@@ -158,6 +158,18 @@ export default function RecordingPage() {
     });
   };
 
+  // Get current timestamp in required format
+  const getCurrentTimestamp = () => {
+    const now = new Date();
+    const time = now.toTimeString().split(" ")[0]; // HH:MM:SS format
+    const dayOfWeek = now.getDay(); // 0-6 (where 0 is Sunday)
+
+    return {
+      time,
+      dayOfWeek,
+    };
+  };
+
   // Function to send audio
   const sendAudio = async () => {
     if (!uuid || !pin) {
@@ -179,10 +191,17 @@ export default function RecordingPage() {
 
     try {
       const base64Audio = await convertBlobToBase64(audioBlob);
+      const timestamp = getCurrentTimestamp();
+
       const response = await fetch("https://flzer6zwt3.execute-api.us-east-1.amazonaws.com/dev/audio_to_ai/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uuid, pin, file: base64Audio }),
+        body: JSON.stringify({
+          uuid,
+          pin,
+          file: base64Audio,
+          timestamp,
+        }),
       });
 
       const data = await response.json();
@@ -222,10 +241,16 @@ export default function RecordingPage() {
     setSystemMessage("🔮 Generating surprise effect...");
 
     try {
+      const timestamp = getCurrentTimestamp();
+
       const response = await fetch("https://flzer6zwt3.execute-api.us-east-1.amazonaws.com/dev/pattern_to_ai/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uuid, pin }),
+        body: JSON.stringify({
+          uuid,
+          pin,
+          timestamp,
+        }),
       });
 
       const data = await response.json();
@@ -335,13 +360,7 @@ export default function RecordingPage() {
               <rect x="6" y="6" width="12" height="12" rx="2" />
             </svg>
           ) : (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="#000000"
-              height="40px"
-              width="40px"
-              viewBox="0 0 512 512"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" height="40px" width="40px" viewBox="0 0 512 512">
               <g>
                 <path d="m439.5,236c0-11.3-9.1-20.4-20.4-20.4s-20.4,9.1-20.4,20.4c0,70-64,126.9-142.7,126.9-78.7,0-142.7-56.9-142.7-126.9 0-11.3-9.1-20.4-20.4-20.4s-20.4,9.1-20.4,20.4c0,86.2 71.5,157.4 163.1,166.7v57.5h-23.6c-11.3,0-20.4,9.1-20.4,20.4 0,11.3 9.1,20.4 20.4,20.4h88c11.3,0 20.4-9.1 20.4-20.4 0-11.3-9.1-20.4-20.4-20.4h-23.6v-57.5c91.6-9.3 163.1-80.5 163.1-166.7z" />
                 <path d="m256,323.5c51,0 92.3-41.3 92.3-92.3v-127.9c0-51-41.3-92.3-92.3-92.3s-92.3,41.3-92.3,92.3v127.9c0,51 41.3,92.3 92.3,92.3zm-52.3-220.2c0-28.8 23.5-52.3 52.3-52.3s52.3,23.5 52.3,52.3v127.9c0,28.8-23.5,52.3-52.3,52.3s-52.3-23.5-52.3-52.3v-127.9z" />
@@ -354,7 +373,9 @@ export default function RecordingPage() {
         <div className="grid grid-cols-1 gap-4 w-full max-w-xs">
           {/* Send Audio Button */}
           <button
-            className={`btn btn-secondary flex items-center justify-center gap-2 ${loading || !audioBlob ? "btn-disabled" : ""}`}
+            className={`btn btn-secondary flex items-center justify-center gap-2 ${
+              loading || !audioBlob ? "btn-disabled" : ""
+            }`}
             onClick={sendAudio}
             disabled={loading || !audioBlob}
           >
