@@ -17,7 +17,7 @@ export default function PINPage() {
     // Check if UUID and PIN exist in localStorage
     const storedUuid = localStorage.getItem("uuid");
     const storedPin = localStorage.getItem("pin");
-    
+
     if (storedUuid && storedPin) {
       // Redirect to recording page if both UUID and PIN exist
       router.push("/recording");
